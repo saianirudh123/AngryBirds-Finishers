@@ -164,7 +164,7 @@ public class NaiveAgent implements Runnable {
                    // ArrayList<ArrayList<String>> list=new ArrayList<ArrayList<String>>(100);
                     for(int i=0;i<=blocks.size()-1;i++){
                         block=blocks.get(i);
-                        if(block.getType().equals("Ice")) {
+                        /*if(block.getType().equals("Ice")) {
                             list[block.id].add("Ice");
                         }
                         if(block.getType().equals("Wood")) {
@@ -173,11 +173,11 @@ public class NaiveAgent implements Runnable {
                         if(block.getType().equals("Stone")) {
                             list[block.id].add("Stone");
                         }
-                        list[block.id].add("rect");
+                        list[block.id].add("rect");*/
                         System.out.println(block.getCenter()+" "+block.getType()+" "+block.id);
                         System.out.println();
                     }
-                   System.out.println(list);
+                   //System.out.println(list);
                     Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
                     // point near it
                     if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
