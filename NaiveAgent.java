@@ -186,51 +186,7 @@ public class NaiveAgent implements Runnable {
                         }
                     }
                     pig=pigs.get(max);
-                    List<ABObject> blocks=vision.findBlocksMBR();
-                    //ABObject pig = pigs.get(randomGenerator.nextInt(pigs.size()));
-                    /*List<ABObject> blocks = vision.findBlocksMBR();
-                    ABObject block;
-                   // ArrayList<String>[] list = (ArrayList<String>[])new ArrayList[100];
-                    String[][] matrix=new String[blocks.size()+pigs.size()][2];
-                    // ArrayList<String> list[100]=new ArrayList<String>(4);
-                    // ArrayList<ArrayList<String>> list=new ArrayList<ArrayList<String>>(100);
-                    for(int i=0;i<=blocks.size()-1;i++){
-                        block=blocks.get(i);
-                       // matrix[block.id][0]=block.getType();
-                        System.out.println(block.getType().getClass().getName());
-                        if(block.getType().id==10) {
-                            System.out.println("Hello ice");
-                            matrix[block.id][0]="Ice";
-                            matrix[block.id][1]=String.valueOf(block.shape);
-                        }
-                        if(block.getType().id==11) {
-                            System.out.println("Hello wood");
-                            matrix[block.id][0]="Wood";
-                            matrix[block.id][1]=String.valueOf(block.shape);
-                        }
-                        if(block.getType().id==12) {
-                            System.out.println("Hello stone");
-                            matrix[block.id][0]="Stone";
-                            matrix[block.id][1]=String.valueOf(block.shape);
-                        }
-
-                        //list[block.id].add("rect");
-                      //  System.out.println(block.getCenter()+" "+block.getType()+" "+block.id);
-                        //System.out.println();
-                    }
-                    for (int i = 0; i <blocks.size() ; i++) {
-                        block=blocks.get(i);
-                        for (int j = 0; j < 2; j++) {
-                            System.out.print(matrix[block.id][j]+" ");
-                        }
-                        System.out.println();
-                    }*/
-                    //ABObject block;
-
-                    /*for (int i = 0; i <blocks.size() ; i++) {
-                        block=blocks.get(i);
-                        System.out.println(block.id+" "+g[i][0]+" "+g[i][1]);
-                    }*/
+                    //List<ABObject> blocks=vision.findBlocksMBR();
                     Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
                     // point near it
                     if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
