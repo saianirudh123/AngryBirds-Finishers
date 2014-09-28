@@ -1,6 +1,7 @@
+
 package ab.demo;
 //I Edited this
-
+import java.lang.*;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -109,7 +110,35 @@ public class NaiveAgent implements Runnable {
                 .sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
                         * (p1.y - p2.y)));
     }
+    public String[][] visualize(Vision v){
+        List<ABObject> blocks = v.findBlocksMBR();
+        //for(ABObject b : blocks)
+        //  System.out.println(b.id);
+        ABObject block;
+        String[][] matrix=new String[blocks.size()][2];
+        for(int i=0;i<blocks.size();i++){
+            block=blocks.get(i);
+            if(block.getType().id==10) {
 
+                matrix[block.id][0]="Ice";
+                matrix[block.id][1]=String.valueOf(block.shape);
+            }
+            if(block.getType().id==11) {
+                matrix[block.id][0]="Wood";
+                matrix[block.id][1]=String.valueOf(block.shape);
+            }
+            if(block.getType().id==12) {
+                matrix[block.id][0]="Stone";
+                matrix[block.id][1]=String.valueOf(block.shape);
+            }
+        }
+        for (int i = 0; i <blocks.size() ; i++) {
+            block=blocks.get(i);
+
+            System.out.println(block.id+" "+matrix[block.id][0]+" "+matrix[block.id][1]);
+        }
+        return matrix;
+    }
     public GameState solve()
     {
 
@@ -132,6 +161,7 @@ public class NaiveAgent implements Runnable {
             sling = vision.findSlingshotMBR();
         }
         // get all the pigs
+        String[][] g=visualize(vision);
         List<ABObject> pigs = vision.findPigsMBR();
 
         GameState state = aRobot.getState();
@@ -156,28 +186,51 @@ public class NaiveAgent implements Runnable {
                         }
                     }
                     pig=pigs.get(max);
+                    List<ABObject> blocks=vision.findBlocksMBR();
                     //ABObject pig = pigs.get(randomGenerator.nextInt(pigs.size()));
-                    List<ABObject> blocks = vision.findBlocksMBR();
+                    /*List<ABObject> blocks = vision.findBlocksMBR();
                     ABObject block;
-                    ArrayList<String>[] list = (ArrayList<String>[])new ArrayList[100];
-                   // ArrayList<String> list[100]=new ArrayList<String>(4);
-                   // ArrayList<ArrayList<String>> list=new ArrayList<ArrayList<String>>(100);
+                   // ArrayList<String>[] list = (ArrayList<String>[])new ArrayList[100];
+                    String[][] matrix=new String[blocks.size()+pigs.size()][2];
+                    // ArrayList<String> list[100]=new ArrayList<String>(4);
+                    // ArrayList<ArrayList<String>> list=new ArrayList<ArrayList<String>>(100);
                     for(int i=0;i<=blocks.size()-1;i++){
                         block=blocks.get(i);
-                        /*if(block.getType().equals("Ice")) {
-                            list[block.id].add("Ice");
+                       // matrix[block.id][0]=block.getType();
+                        System.out.println(block.getType().getClass().getName());
+                        if(block.getType().id==10) {
+                            System.out.println("Hello ice");
+                            matrix[block.id][0]="Ice";
+                            matrix[block.id][1]=String.valueOf(block.shape);
                         }
-                        if(block.getType().equals("Wood")) {
-                            list[block.id].add("Wood");
+                        if(block.getType().id==11) {
+                            System.out.println("Hello wood");
+                            matrix[block.id][0]="Wood";
+                            matrix[block.id][1]=String.valueOf(block.shape);
                         }
-                        if(block.getType().equals("Stone")) {
-                            list[block.id].add("Stone");
+                        if(block.getType().id==12) {
+                            System.out.println("Hello stone");
+                            matrix[block.id][0]="Stone";
+                            matrix[block.id][1]=String.valueOf(block.shape);
                         }
-                        list[block.id].add("rect");*/
-                        System.out.println(block.getCenter()+" "+block.getType()+" "+block.id);
-                        System.out.println();
+
+                        //list[block.id].add("rect");
+                      //  System.out.println(block.getCenter()+" "+block.getType()+" "+block.id);
+                        //System.out.println();
                     }
-                   //System.out.println(list);
+                    for (int i = 0; i <blocks.size() ; i++) {
+                        block=blocks.get(i);
+                        for (int j = 0; j < 2; j++) {
+                            System.out.print(matrix[block.id][j]+" ");
+                        }
+                        System.out.println();
+                    }*/
+                    //ABObject block;
+
+                    /*for (int i = 0; i <blocks.size() ; i++) {
+                        block=blocks.get(i);
+                        System.out.println(block.id+" "+g[i][0]+" "+g[i][1]);
+                    }*/
                     Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
                     // point near it
                     if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
