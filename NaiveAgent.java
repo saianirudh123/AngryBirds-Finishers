@@ -1,6 +1,5 @@
 
 package ab.demo;
-//I Edited this
 import java.lang.*;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -110,24 +109,26 @@ public class NaiveAgent implements Runnable {
                 .sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
                         * (p1.y - p2.y)));
     }
-    public String[][] visualize(Vision v){
-        List<ABObject> blocks = v.findBlocksMBR();
-        //for(ABObject b : blocks)
-        //  System.out.println(b.id);
+    public String[][] visualize(List<ABObject> blocks){
+        //List<ABObject> blocks = v.findBlocksMBR();
+
         ABObject block;
         String[][] matrix=new String[blocks.size()][2];
         for(int i=0;i<blocks.size();i++){
             block=blocks.get(i);
-            if(block.getType().id==10) {
+            if(block.getType().id==10)// Object ID for Ice
+            {
 
                 matrix[block.id][0]="Ice";
                 matrix[block.id][1]=String.valueOf(block.shape);
             }
-            if(block.getType().id==11) {
+            if(block.getType().id==11) // Object ID for wood
+            {
                 matrix[block.id][0]="Wood";
                 matrix[block.id][1]=String.valueOf(block.shape);
             }
-            if(block.getType().id==12) {
+            if(block.getType().id==12) // Object ID for Stone
+            {
                 matrix[block.id][0]="Stone";
                 matrix[block.id][1]=String.valueOf(block.shape);
             }
@@ -137,6 +138,7 @@ public class NaiveAgent implements Runnable {
 
             System.out.println(block.id+" "+matrix[block.id][0]+" "+matrix[block.id][1]);
         }
+        System.out.println();
         return matrix;
     }
     public GameState solve()
@@ -161,7 +163,8 @@ public class NaiveAgent implements Runnable {
             sling = vision.findSlingshotMBR();
         }
         // get all the pigs
-        String[][] g=visualize(vision);
+        List<ABObject> blocks=vision.findBlocksMBR();
+        String[][] g=visualize(blocks);
         List<ABObject> pigs = vision.findPigsMBR();
 
         GameState state = aRobot.getState();
