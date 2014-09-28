@@ -109,8 +109,8 @@ public class NaiveAgent implements Runnable {
                 .sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
                         * (p1.y - p2.y)));
     }
-    public String[][] visualize(Vision v){
-        List<ABObject> blocks = v.findBlocksMBR();
+    public String[][] visualize(List<ABObject> blocks){
+        //List<ABObject> blocks = v.findBlocksMBR();
 
         ABObject block;
         String[][] matrix=new String[blocks.size()][2];
@@ -163,7 +163,8 @@ public class NaiveAgent implements Runnable {
             sling = vision.findSlingshotMBR();
         }
         // get all the pigs
-        String[][] g=visualize(vision);
+        List<ABObject> blocks=vision.findBlocksMBR();
+        String[][] g=visualize(blocks);
         List<ABObject> pigs = vision.findPigsMBR();
 
         GameState state = aRobot.getState();
