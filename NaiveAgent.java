@@ -1,8 +1,9 @@
 
 package ab.demo;
-import java.lang.*;
+import java.awt.*;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.lang.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -29,6 +30,8 @@ public class NaiveAgent implements Runnable {
     private boolean firstShot;
     private Point prevTarget;
     private Point prev_release;
+    public int ice_wt=25,wood_wt=30,stone_wt=50;
+    public int first=1;
     // a standalone implementation of the Naive Agent
     public NaiveAgent() {
 
@@ -45,7 +48,7 @@ public class NaiveAgent implements Runnable {
 
     // run the client
     public void run() {
-
+        first=1;
         aRobot.loadLevel(currentLevel);
         while (true) {
             GameState state = solve();
@@ -71,6 +74,7 @@ public class NaiveAgent implements Runnable {
                             + " Score: " + scores.get(key) + " ");
                 }
                 System.out.println("Total Score: " + totalScore);
+                first=1;
                 //System.out.println("Pavan we can Edit this code woot");
                 aRobot.loadLevel(++currentLevel);
                 // make a new trajectory planner whenever a new level is entered
@@ -109,16 +113,47 @@ public class NaiveAgent implements Runnable {
                 .sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
                         * (p1.y - p2.y)));
     }
+    public Point centreOfMass(List<ABObject> blocks){
+        int cmx=0,cmy=0;
+        int numx=0,dinx=0;
+        int numy=0,diny=0;
+        for(int i=0;i<blocks.size();i++){
+                ABObject block=blocks.get(i);
+                Dimension size=block.getSize();
+                Point center=block.getCenter();
+               if(block.getType().id==10){
+                   numx=numx+center.x*size.width*size.height*ice_wt;
+                   dinx+=size.width*size.height*ice_wt;
+                   numy=numy+center.y*size.width*size.height*ice_wt;
+                   diny+=size.width*size.height*ice_wt;
+                   continue;
+               }
+            if(block.getType().id==11){
+                numx=numx+center.x*size.width*size.height*wood_wt;
+                dinx+=size.width*size.height*wood_wt;
+                numy=numy+center.y*size.width*size.height*wood_wt;
+                diny+=size.width*size.height*wood_wt;
+                continue;
+            }
+            if(block.getType().id==12){
+                numx=numx+center.x*size.width*size.height*stone_wt;
+                dinx+=size.width*size.height*stone_wt;
+                numy=numy+center.y*size.width*size.height*stone_wt;
+                diny+=size.width*size.height*stone_wt;
+                continue;
+            }
+        }
+        //System.out.println("x"+" "+numx/dinx +"  "+"y"+numy/diny);
+        return new Point(numx/dinx,numy/diny);
+    }
     public String[][] visualize(List<ABObject> blocks){
         //List<ABObject> blocks = v.findBlocksMBR();
-
         ABObject block;
         String[][] matrix=new String[blocks.size()][2];
         for(int i=0;i<blocks.size();i++){
             block=blocks.get(i);
             if(block.getType().id==10)// Object ID for Ice
             {
-
                 matrix[block.id][0]="Ice";
                 matrix[block.id][1]=String.valueOf(block.shape);
             }
@@ -135,10 +170,9 @@ public class NaiveAgent implements Runnable {
         }
         for (int i = 0; i <blocks.size() ; i++) {
             block=blocks.get(i);
-
-            System.out.println(block.id+" "+matrix[block.id][0]+" "+matrix[block.id][1]);
+            //System.out.println(block.getSize());
+            //System.out.println(block.id+" "+matrix[block.id][0]+" "+matrix[block.id][1]);
         }
-        System.out.println();
         return matrix;
     }
     public GameState solve()
@@ -165,10 +199,10 @@ public class NaiveAgent implements Runnable {
         // get all the pigs
         List<ABObject> blocks=vision.findBlocksMBR();
         String[][] g=visualize(blocks);
+        Point cm=centreOfMass(blocks);
         List<ABObject> pigs = vision.findPigsMBR();
-
+        //System.out.println(cm);
         GameState state = aRobot.getState();
-
         // if there is a sling, then play, otherwise just skip.
         if (sling != null) {
 
@@ -180,6 +214,7 @@ public class NaiveAgent implements Runnable {
                 {
                     // random pick up a pig
                     ABObject pig;
+
                     int height=10000,max=0;
                     for(int i=0;i<=pigs.size()-1;i++){
                         pig=pigs.get(i);
@@ -189,8 +224,26 @@ public class NaiveAgent implements Runnable {
                         }
                     }
                     pig=pigs.get(max);
+                    int leastX=10000;
+                    int leastX_maxY=0;
+                    for(int i=0;i<pigs.size();i++){
+                        if(pig.getCenter().y==height){
+                            if(pig.getCenter().x<leastX){
+                                leastX=pig.getCenter().x;
+                                leastX_maxY=i;
+                            }
+                        }
+                    }
+                    pig=pigs.get(leastX_maxY);
                     //List<ABObject> blocks=vision.findBlocksMBR();
-                    Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
+                    //Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
+                    //System.out.println("_tpt"+_tpt);
+                    Point _tpt = pig.getCenter();
+                    System.out.println("target"+_tpt);
+                    if(first==1) {
+                        _tpt = cm;
+                        System.out.println("Center Of Mass"+_tpt);
+                    }
                     // point near it
                     if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
                         double _angle = randomGenerator.nextDouble() * Math.PI * 2;
@@ -209,6 +262,9 @@ public class NaiveAgent implements Runnable {
                     {
                         System.out.println("E>1");
                         releasePoint = pts.get(1);
+                        if(first==1){
+                            releasePoint = pts.get(0);
+                        }
                         System.out.println(releasePoint);
                         if(firstShot){
                             flag=1;
@@ -224,6 +280,7 @@ public class NaiveAgent implements Runnable {
                             }
                         }*/
                         System.out.println(releasePoint);
+
                         System.out.println("E==1");
                     }
                     else if (pts.size() == 2)
@@ -236,6 +293,9 @@ public class NaiveAgent implements Runnable {
 							releasePoint = pts.get(0);*/
                         System.out.println("E2");
                         releasePoint = pts.get(1);
+                        if(first==1){
+                            releasePoint = pts.get(0);
+                        }
                         /*double ra = tp.getReleaseAngle(sling,releasePoint);
                         if(prev_release!=null) {
                             double pra = tp.getReleaseAngle(sling, prev_release);
@@ -343,6 +403,7 @@ public class NaiveAgent implements Runnable {
             }
 
         }
+        first=0;
         return state;
     }
 
