@@ -1,10 +1,11 @@
-
 package ab.demo;
 import java.awt.*;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.lang.*;
 import java.awt.image.BufferedImage;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,9 +19,7 @@ import ab.utils.StateUtil;
 import ab.vision.ABObject;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
-
 public class NaiveAgent implements Runnable {
-
     private ActionRobot aRobot;
     private Random randomGenerator;
     public int currentLevel = 1,flag,done;
@@ -34,7 +33,6 @@ public class NaiveAgent implements Runnable {
     public int first=1;
     // a standalone implementation of the Naive Agent
     public NaiveAgent() {
-
         aRobot = new ActionRobot();
         tp = new TrajectoryPlanner();
         prevTarget = null;
@@ -42,10 +40,7 @@ public class NaiveAgent implements Runnable {
         randomGenerator = new Random();
         // --- go to the Poached Eggs episode level selection page ---
         ActionRobot.GoFromMainMenuToLevelSelection();
-
     }
-
-
     // run the client
     public void run() {
         first=1;
@@ -109,25 +104,94 @@ public class NaiveAgent implements Runnable {
     }
 
     private double distance(Point p1, Point p2) {
-        return Math
-                .sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y)
-                        * (p1.y - p2.y)));
+        return Math.sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)));
+    }
+    public ArrayList<Point> WeakPoints(List<ABObject> blocks){
+        ArrayList<Point> weak = new ArrayList<Point>();
+        ArrayList<Point> pts = new ArrayList<Point>();
+        ArrayList<ABObject> weak_blocks=new ArrayList<ABObject>();
+        ArrayList<Point> topcorners=new ArrayList<Point>();
+        ArrayList<Point> bottomcorners=new ArrayList<Point>();
+        int minx=10000;
+        ABObject temp;
+        for(int i=0;i<blocks.size();i++){
+            ABObject block=blocks.get(i);
+            Dimension size=block.getSize();
+            Point center=block.getCenter();
+            int wi=(int) size.width;
+            int hi=(int) size.height;
+            Point top  = new Point(center.x - (wi / 2), center.y - (hi / 2));
+            Point bottom = new Point(center.x-(wi/2) , center.y+(hi/2));
+            if(minx==10000){
+                minx=top.x;
+                weak_blocks.add(block);
+                continue;
+            }
+            if(Math.abs(minx - top.x)<5){
+                weak_blocks.add(block);
+                continue;
+            }
+            if(top.x>minx){
+                continue;
+            }
+            if(top.x<minx){
+                minx=top.x;
+                weak_blocks.clear();
+                weak_blocks.add(block);
+            }
+        }
+        for(int i=0;i<weak_blocks.size();i++){
+            System.out.println(weak_blocks.get(i).x);
+        }
+
+        return weak;
+    }
+
+    public ArrayList<Point> WeakPoints_Vertical_blocks_on_Horizontal(List<ABObject> blocks) {
+        ArrayList<Point> weak_points = new ArrayList<Point>();
+        ArrayList<ABObject> weak_blocks=new ArrayList<ABObject>();
+        for (int i = 0; i < blocks.size(); i++) {
+            ABObject block = blocks.get(i);
+            Dimension size = block.getSize();
+            Point center = block.getCenter();
+            int wi = (int) size.width;
+            int hi = (int) size.height;
+            Point top = new Point(center.x - (wi / 2), center.y - (hi / 2));
+            Point bottom = new Point(center.x - (wi / 2), center.y + (hi / 2));
+            if (Math.abs(top.y-bottom.y)<10) {
+                for (int j = 0; j < blocks.size(); j++) {
+                    ABObject block1 = blocks.get(i);
+                    size = block1.getSize();
+                    center = block1.getCenter();
+                    wi = (int) size.width;
+                    hi = (int) size.height;
+                    Point top1 = new Point(center.x - (wi / 2), center.y - (hi / 2));
+                    Point bottom1 = new Point(center.x - (wi / 2), center.y + (hi / 2));
+                    if(block1!=block){
+                        if(Math.abs(bottom1.y-top.y)<10&&Math.abs(top1.x-bottom1.x)<10&&(bottom1.x>=top.x)&&(bottom1.x>=bottom.x)){
+                            weak_points.add(block1.getCenter());
+                        }
+                    }
+                }
+            }
+        }
+        return weak_points;
     }
     public Point centreOfMass(List<ABObject> blocks){
         int cmx=0,cmy=0;
         int numx=0,dinx=0;
         int numy=0,diny=0;
         for(int i=0;i<blocks.size();i++){
-                ABObject block=blocks.get(i);
-                Dimension size=block.getSize();
-                Point center=block.getCenter();
-               if(block.getType().id==10){
-                   numx=numx+center.x*size.width*size.height*ice_wt;
-                   dinx+=size.width*size.height*ice_wt;
-                   numy=numy+center.y*size.width*size.height*ice_wt;
-                   diny+=size.width*size.height*ice_wt;
-                   continue;
-               }
+            ABObject block=blocks.get(i);
+            Dimension size=block.getSize();
+            Point center=block.getCenter();
+            if(block.getType().id==10){
+                numx=numx+center.x*size.width*size.height*ice_wt;
+                dinx+=size.width*size.height*ice_wt;
+                numy=numy+center.y*size.width*size.height*ice_wt;
+                diny+=size.width*size.height*ice_wt;
+                continue;
+            }
             if(block.getType().id==11){
                 numx=numx+center.x*size.width*size.height*wood_wt;
                 dinx+=size.width*size.height*wood_wt;
@@ -177,20 +241,15 @@ public class NaiveAgent implements Runnable {
     }
     public GameState solve()
     {
-
         // capture Image
         BufferedImage screenshot = ActionRobot.doScreenShot();
-
         // process image
         Vision vision = new Vision(screenshot);
-
         // find the slingshot
         Rectangle sling = vision.findSlingshotMBR();
-
         // confirm the slingshot
-        while (sling == null && aRobot.getState() == GameState.PLAYING) {
-            System.out
-                    .println("No slingshot detected. Please remove pop up or zoom out");
+        while (sling == null && aRobot.getState() == GameState.PLAYING){
+            System.out.println("No slingshot detected. Please remove pop up or zoom out");
             ActionRobot.fullyZoomOut();
             screenshot = ActionRobot.doScreenShot();
             vision = new Vision(screenshot);
@@ -198,8 +257,9 @@ public class NaiveAgent implements Runnable {
         }
         // get all the pigs
         List<ABObject> blocks=vision.findBlocksMBR();
-        String[][] g=visualize(blocks);
-        Point cm=centreOfMass(blocks);
+        String[][] g = visualize(blocks);
+        Point cm = centreOfMass(blocks);
+        ArrayList<Point> wps = WeakPoints(blocks);
         List<ABObject> pigs = vision.findPigsMBR();
         //System.out.println(cm);
         GameState state = aRobot.getState();
@@ -239,10 +299,10 @@ public class NaiveAgent implements Runnable {
                     //Point _tpt = pig.getCenter();// if the target is very close to before, randomly choose a
                     //System.out.println("_tpt"+_tpt);
                     Point _tpt = pig.getCenter();
-                    System.out.println("target"+_tpt);
+                    //System.out.println("target"+_tpt);
                     if(first==1) {
                         _tpt = cm;
-                        System.out.println("Center Of Mass"+_tpt);
+                        //System.out.println("Center Of Mass"+_tpt);
                     }
                     // point near it
                     if (prevTarget != null && distance(prevTarget, _tpt) < 10) {
@@ -335,9 +395,8 @@ public class NaiveAgent implements Runnable {
                     if (releasePoint != null) {
                         double releaseAngle = tp.getReleaseAngle(sling,
                                 releasePoint);
-                        System.out.println("Release Point: " + releasePoint);
-                        System.out.println("Release Angle: "
-                                + Math.toDegrees(releaseAngle));
+                        //System.out.println("Release Point: " + releasePoint);
+                        //System.out.println("Release Angle: " + Math.toDegrees(releaseAngle));
                         int tapInterval = 0;
                         switch (aRobot.getBirdTypeOnSling())
                         {
