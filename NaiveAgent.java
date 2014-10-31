@@ -38,7 +38,7 @@ public class NaiveAgent implements Runnable {
         prevTarget = null;
         firstShot = true;
         randomGenerator = new Random();
-        // --- go to the Poached Eggs episode level selection page ---
+        // --x- go to the Poached Eggs episode level selection page ---
         ActionRobot.GoFromMainMenuToLevelSelection();
     }
     // run the client
@@ -146,7 +146,6 @@ public class NaiveAgent implements Runnable {
 
         return weak;
     }
-
     public ArrayList<Point> WeakPoints_Vertical_blocks_on_Horizontal(List<ABObject> blocks) {
         ArrayList<Point> weak_points = new ArrayList<Point>();
         ArrayList<ABObject> weak_blocks=new ArrayList<ABObject>();
