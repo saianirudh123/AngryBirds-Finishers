@@ -127,9 +127,9 @@ public class NaiveAgent implements Runnable {
                 weak_blocks.add(block);
             }
         }
-        for(int i=0;i<weak_blocks.size();i++){
+        /*for(int i=0;i<weak_blocks.size();i++){
             System.out.println(weak_blocks.get(i).x);
-        }
+        }*/
         return weak;
     }
     public Point centreOfMass(List<ABObject> blocks){
@@ -217,7 +217,7 @@ public class NaiveAgent implements Runnable {
         for(int i=0;i<blocks.size();i++){
             blks.add(blocks.get(i));
         }
-        System.out.println(blks.size());
+        System.out.println("# of blocks is"+blks.size());
         Finisher fin = new Finisher(blks);
         String[][] g=visualize(blocks);
         Point cm=centreOfMass(blocks);

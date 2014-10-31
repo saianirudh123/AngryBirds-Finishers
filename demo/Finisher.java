@@ -12,7 +12,7 @@ import ab.vision.ABObject;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
 public class Finisher{
-    ArrayList<SubStructure> list;
+    ArrayList<SubStructure> lst;
     ArrayList<ABObject> objects;
     Structure s;
     public Finisher(ArrayList <ABObject> objs ){
@@ -20,13 +20,13 @@ public class Finisher{
         objects=objs;
         //this.createSubStructures();
         s=new Structure(objects);
-        list=s.list;
-        System.out.println("No of Components"+list.size());
+        lst=s.list;
+        System.out.println("No of Components"+lst.size());
         //System.out.println(list.get(0).obj.size());
         //new Future(ArrayList <ABObjects> all);//**For Learning Scenario**//
     }
     public ArrayList<SubStructure> getSubStructures(){
-            return list;
+            return lst;
         }
     public static void main(String args[]){
         //calls FInisher Agent
