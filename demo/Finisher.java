@@ -1,5 +1,6 @@
 package ab.demo;
 import java.awt.*;
+import java.util.*;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.lang.Integer;
@@ -22,6 +23,12 @@ public class Finisher{
         s=new Structure(objects);
         lst=s.list;
         System.out.println("No of Components"+lst.size());
+        /*for(int i=0;i<lst.size();i++){
+               for(int j=0;j<lst.get(i).obj.size();j++){
+                   System.out.println(i+"#"+lst.get(i).obj.get(j));
+               }
+                System.out.println("\n\n\n");
+        }*/
         //System.out.println(list.get(0).obj.size());
         //new Future(ArrayList <ABObjects> all);//**For Learning Scenario**//
     }
