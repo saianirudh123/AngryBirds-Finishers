@@ -10,12 +10,15 @@ import ab.vision.ABObject;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
 public class Future{
+
     public Future(){
+
             //find all the pts that we can Hit;
     }
-    public Future(ArrayList<java.awt.Point> pts){
+    public Future(ArrayList<ABObject> objs,ArrayList<ABObject> pigs,Rectangle sling){
 
     }
+
     public int getMaxUtility(ArrayList<Integer> uts){
         int max=0;
         for(int i=0;i<uts.size();i++){

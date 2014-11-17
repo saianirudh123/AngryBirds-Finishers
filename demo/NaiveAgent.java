@@ -20,6 +20,7 @@ import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
 public class NaiveAgent implements Runnable {
     private ActionRobot aRobot;
+    public boolean set_weak;
     private Random randomGenerator;
     public int currentLevel = 1,flag,done;
     public static int time_limit = 12;
@@ -93,45 +94,115 @@ public class NaiveAgent implements Runnable {
     private double distance(Point p1, Point p2) {
         return Math.sqrt((double) ((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y)));
     }
-    public ArrayList<Point> weakPoints(List<ABObject> blocks){
-        ArrayList<Point> weak=new ArrayList<Point>();
-        ArrayList<Point> pts=new ArrayList<Point>();
-        ArrayList<ABObject> weak_blocks=new ArrayList<ABObject>();
-        ArrayList<Point> topcorners=new ArrayList<Point>();
-        ArrayList<Point> bottomcorners=new ArrayList<Point>();
-        int minx=10000;
-        ABObject temp;
-        for(int i=0;i<blocks.size();i++){
-            ABObject block=blocks.get(i);
-            Dimension size=block.getSize();
-            Point center=block.getCenter();
-            int wi=(int) size.width;
-            int hi=(int) size.height;
-            Point top= new Point(center.x - (wi / 2), center.y - (hi / 2));
-            Point bottom=new Point(center.x-(wi/2) , center.y+(hi/2));
-            if(minx==10000){
-                minx=top.x;
-                weak_blocks.add(block);
-                continue;
-            }
-            if(Math.abs(minx - top.x)<5){
-                weak_blocks.add(block);
-                continue;
-            }
-            if(top.x>minx){
-                continue;
-            }
-            if(top.x<minx){
-                minx=top.x;
-                weak_blocks.clear();
-                weak_blocks.add(block);
+
+    public ArrayList<Point> WeakPoints_Vertical_blocks_on_Horizontal(List<ABObject> blocks) {
+        //System.out.println("Just entered Pavan");
+        ArrayList<Point> weak_points = new ArrayList<Point>();
+        ArrayList<Point> weak_points1 = new ArrayList<Point>();
+        // ArrayList<ABObject> weak_blocks=new ArrayList<ABObject>();
+        for (int i = 0; i < blocks.size(); i++) {
+            int nblocks=0;
+            ABObject block = blocks.get(i);
+            Dimension size = block.getSize();
+            Point center = block.getCenter();
+            int wi = (int) size.width;
+            int hi = (int) size.height;
+            Point top = new Point(center.x - (wi / 2), center.y - (hi / 2));
+            Point bottom = new Point(center.x - (wi / 2), center.y + (hi / 2));
+            if (wi>hi/*||Math.abs(top.y-bottom.y)<10*/) {
+                //System.out.println("iffff");
+                for (int j = 0; j < blocks.size(); j++) {
+                    ABObject block1 = blocks.get(j);
+                    Dimension size1 = block1.getSize();
+                    Point center1 = block1.getCenter();
+                    int wi1 = (int) size1.width;
+                    int hi1= (int) size1.height;
+                    Point top1 = new Point(center1.x - (wi1 / 2), center1.y - (hi1 / 2));
+                    Point bottom1 = new Point(center1.x - (wi1 / 2), center1.y + (hi1 / 2));
+                    //System.out.println("Height"+hi1+"width"+wi1);;
+                    if(block1!=block){
+                        if(top1.y>bottom.y && hi1>wi1/*&&&&(bottom1.x>=top.x)&&(bottom1.x<=bottom.x)*/&&isconnected(block,block1))
+                        {
+                            //System.out.println("final iff");
+                            nblocks++;
+                            Point pt=center;
+                            pt.x=top.x;
+                            pt.y=top.y+hi;
+                            weak_points1.add(pt);
+                        }
+                    }
+                }
+                if(nblocks==1||nblocks==2){
+                    Point pt=center;
+                    pt.x=top.x;
+                    pt.y=top.y+hi;
+                    weak_points.add(pt);
+                }
+
             }
         }
-        /*for(int i=0;i<weak_blocks.size();i++){
-            System.out.println(weak_blocks.get(i).x);
+        if(weak_points.size()==0){
+            weak_points=weak_points1;
+        }
+       /* if(weak_points.size()==0){
+            //center of mass
         }*/
-        return weak;
+        return weak_points;
     }
+
+    public  boolean isconnected(ABObject o, ABObject o1) {
+
+        Dimension size1 = o.getSize();
+        Point center1 = o.getCenter();
+        int wi1 = (int) size1.width;
+        int hi1 = (int) size1.height;
+        Point ltop1 = new Point(center1.x - (wi1 / 2), center1.y - (hi1 / 2));
+        Point lbottom1 = new Point(center1.x - (wi1 / 2), center1.y + (hi1 / 2));
+        Point rtop1 = new Point(center1.x + (wi1 / 2), center1.y - (hi1 / 2));
+        Point rbottom1 = new Point(center1.x + (wi1 / 2), center1.y + (hi1 / 2));
+        Dimension size2 = o1.getSize();
+        Point center2 = o1.getCenter();
+        int wi2 = (int) size2.width;
+        int hi2 = (int) size2.height;
+        Point ltop2 = new Point(center2.x - (wi2 / 2), center2.y - (hi2 / 2));
+        Point lbottom2 = new Point(center2.x - (wi2 / 2), center2.y + (hi2 / 2));
+        Point rtop2 = new Point(center2.x + (wi2 / 2), center2.y - (hi2 / 2));
+        Point rbottom2 = new Point(center2.x + (wi2 / 2), center2.y + (hi2 / 2));
+
+
+        Point Pts2[] = new Point[4];
+        Pts2[0] = ltop2;
+        Pts2[1] = lbottom2;
+        Pts2[2] = rtop2;
+        Pts2[3] = rbottom2;
+        Point Pts1[] = new Point[4];
+        Pts1[0] = ltop1;
+        Pts1[1] = lbottom1;
+        Pts1[2] = rtop1;
+        Pts1[3] = rbottom1;
+        /*System.out.println("Object1 left top:"+ltop1+"Objec1 right bottom:"+rbottom1);
+        System.out.println("Object2 left top:"+ltop2+"Objec2 right bottom:"+rbottom2);*/
+        int lt = 0, lb = 1, rt = 2, rb = 3;
+        int xx, yy;
+        for (int i = 0; i < 4; i++)
+        {
+            xx = Pts2[i].x;
+            yy = Pts2[i].y;
+            for (int j = 0; j < 4; j++)
+            {
+                if ((ltop1.x - rtop1.x) * (yy - rtop1.y) == (ltop1.y - rtop1.y) * (xx - rtop1.x) ||
+                        (ltop1.x - lbottom1.x) * (yy - lbottom1.y) == (ltop1.y - lbottom1.y) * (xx - lbottom1.x) ||
+                        (rbottom1.x - lbottom1.x) * (yy - lbottom1.y) == (rbottom1.y - lbottom1.y) * (xx - lbottom1.x) ||
+                        (rbottom1.x - rtop1.x) * (yy - rtop1.y) == (rbottom1.y - rtop1.y) * (xx - rtop1.x))
+                {
+
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public Point centreOfMass(List<ABObject> blocks){
         int cmx=0,cmy=0;
         int numx=0,dinx=0;
@@ -163,6 +234,9 @@ public class NaiveAgent implements Runnable {
             }
         }
         //System.out.println("x"+" "+numx/dinx +"  "+"y"+numy/diny);
+        if(dinx==0 || diny==0){
+            return new Point(0,0);
+        }
         return new Point(numx/dinx,numy/diny);
     }
     public String[][] visualize(List<ABObject> blocks){
@@ -196,6 +270,7 @@ public class NaiveAgent implements Runnable {
     }
     public GameState solve()
     {
+           set_weak=false;
         // capture Image
         BufferedImage screenshot = ActionRobot.doScreenShot();
         // process image
@@ -217,16 +292,22 @@ public class NaiveAgent implements Runnable {
         for(int i=0;i<blocks.size();i++){
             blks.add(blocks.get(i));
         }
+
+        ArrayList<ABObject> pgs=new ArrayList<ABObject>();
+        for(int i=0;i<pigs.size();i++){
+            pgs.add(pigs.get(i));
+        }
+
         System.out.println("# of blocks is"+blks.size());
-        Finisher fin = new Finisher(blks);
-        String[][] g=visualize(blocks);
-        Point cm=centreOfMass(blocks);
-        ArrayList<Point> wps=weakPoints(blocks);
+
         //Finisher finish=new Finisher(Point cm,ArrayList<Point> wps);
         //System.out.println(cm);
         GameState state = aRobot.getState();
         // if there is a sling, then play, otherwise just skip.
         if (sling != null) {
+            Finisher fin = new Finisher(blks,pgs,sling);
+            //String[][] g=visualize(blocks);
+            Point cm=centreOfMass(fin.admissible.obj);
             if (!pigs.isEmpty()) {
                 Point releasePoint = null;
                 Shot shot = new Shot();
@@ -259,8 +340,32 @@ public class NaiveAgent implements Runnable {
                     //System.out.println("_tpt"+_tpt);
                     Point _tpt = pig.getCenter();
                     //System.out.println("target"+_tpt);
-                    if(first==1) {
-                        _tpt = cm;
+
+                    if(/*first==1*/true) {
+
+                        ArrayList<Point> wpt=WeakPoints_Vertical_blocks_on_Horizontal(fin.admissible.obj);
+                        if(wpt.size()==0){
+                            System.out.println("Entered1");
+                            set_weak=false;
+                            _tpt=cm;
+                        }
+                        else {
+                            int minIndex=0;
+                            set_weak=true;
+                            System.out.println("Wpts size "+wpt.size());
+                            for(int i=0;i<wpt.size();i++){
+                                System.out.println("wk#"+i+"-"+wpt.get(i));
+                            }
+                            int minX=wpt.get(0).x;
+
+                            for(int i=1;i<wpt.size();i++){
+                                if(wpt.get(i).x<minX){
+                                    minIndex=i;
+                                    minX=wpt.get(i).x;
+                                }
+                            }
+                            _tpt = WeakPoints_Vertical_blocks_on_Horizontal(blks).get(minIndex);
+                        }
                         //System.out.println("Center Of Mass"+_tpt);
                     }
                     // point near it
@@ -279,9 +384,10 @@ public class NaiveAgent implements Runnable {
                     }
                     if (firstShot && pts.size() > 1)
                     {
+                        System.out.print(pts.size()+" ");
                         System.out.println("E>1");
                         releasePoint = pts.get(1);
-                        if(first==1){
+                        if(first==1 ||set_weak==true){
                             releasePoint = pts.get(0);
                         }
                         System.out.println(releasePoint);
@@ -305,7 +411,7 @@ public class NaiveAgent implements Runnable {
 							releasePoint = pts.get(0);*/
                         System.out.println("E2");
                         releasePoint = pts.get(1);
-                        if(first==1){
+                        if(first==1 || set_weak==true){
                             releasePoint = pts.get(0);
                         }
                         System.out.println(releasePoint);
@@ -331,7 +437,7 @@ public class NaiveAgent implements Runnable {
                             case RedBird:
                                 tapInterval = 0; break;               // start of trajectory
                             case YellowBird:
-                                tapInterval = 65 + randomGenerator.nextInt(25);break; // 65-90% of the way
+                                tapInterval = 85 + randomGenerator.nextInt(5);break; // 65-90% of the way
                             case WhiteBird:
                                 tapInterval =  70 + randomGenerator.nextInt(20);break; // 70-90% of the way
                             case BlackBird:

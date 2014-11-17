@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.lang.Integer;
+import java.lang.System;
 import java.util.ArrayList;
 import ab.demo.other.ActionRobot;
 import ab.demo.other.Shot;
@@ -12,23 +13,24 @@ import ab.utils.StateUtil;
 import ab.vision.ABObject;
 import ab.vision.GameStateExtractor.GameState;
 import ab.vision.Vision;
-
 public class Structure {
     ArrayList<SubStructure> list;
     ArrayList<ABObject> objects;
+    ArrayList<ABObject> pigs;
     ArrayList<Point> wpts;
-
-    public Structure(ArrayList<ABObject> objs) {
+    public Structure(ArrayList<ABObject> objs,ArrayList<ABObject> pigs) {
         this.objects = objs;
+        this.pigs=pigs;
         this.wpts = new ArrayList<Point>();
         list = new ArrayList<SubStructure>();
         this.createSubStructures();
-        for (int i = 0; i < list.size(); i++) {
-            ArrayList<Point> temp = getWeakPoints(list.get(i));
-            for (int j = 0; j < temp.size(); j++) {
-                wpts.add(temp.get(j));
+        /*for(int i=0;i<list.size();i++){
+            SubStructure ss=list.get(i);
+            for(int j=0;j<ss.obj.size();j++){
+                System.out.println(ss.obj.get(j));
             }
-        }
+            System.out.println("\n\n\n");
+        }*/
     }
     public ArrayList<Point> getWeakPoints(SubStructure ss) {
         ArrayList<Point> w = new ArrayList<Point>();
@@ -36,61 +38,26 @@ public class Structure {
         return w;
         //return wpts;
     }
-    /*public int slope()
-    {
-    }*/
-     public void createSubStructures(){
-         //error here!!!
-         System.out.println("Verify"+objects.size());
-         for(int i=0;i<objects.size();i++){
-             ABObject o=objects.get(i);
-             if(i==0){
-                 SubStructure ss=new SubStructure();
-                 ss.add(o);
-                 list.add(ss);
-                 continue;
-             }
-             ArrayList<Integer> con=new ArrayList<Integer>();
-             for(int j=0;j<list.size();j++){
-                 SubStructure ss1=list.get(j);
-                 for(int k=0;k<ss1.obj.size();k++){
-                     ABObject o1=ss1.obj.get(k);
-                     //System.out.println(this.isconnected(o,o1));
-                     //System.out.println("e");
-                     if(this.isconnected(o,o1)){
-                         con.add(j);
-                         break;
-                     }
-                 }
-             }
-             if(con.size()==0){
-                 SubStructure ss2=new SubStructure();
-                 ss2.add(o);
-                 list.add(ss2);
-                 continue;
-             }
-             //SubStructure temp=list.get(con.get(0));
-             list.get(con.get(0)).add(o);
-             for(int j=1;j<con.size();j++){
-                 SubStructure temp1=list.get(con.get(j));
-                 for(int k=0;k<temp1.obj.size();k++){
-                     list.get(con.get(0)).add(temp1.obj.get(k));
-                 }
-             }
-
-             for(int j=1;j<con.size();j++){
-                 list.remove(con.get(j));
-             }
-         }
-     }
-    /*public void createSubStructures() {
+    public void createSubStructures(){
+        //error here!!!
+        //System.out.println("Verify"+objects.size());
         for(int i=0;i<objects.size();i++){
-            ArrayList<Integer> con=new ArrayList<Integer>();
+            //System.out.println("C1");
             ABObject o=objects.get(i);
+            if(i==0){
+                SubStructure ss=new SubStructure();
+                ss.add(o);
+                list.add(ss);
+                continue;
+            }
+            ArrayList<Integer> con=new ArrayList<Integer>();
             for(int j=0;j<list.size();j++){
-                SubStructure ss=list.get(j);
-                for(int k=0;k<ss.obj.size();k++){
-                    ABObject o1=ss.obj.get(k);
+                SubStructure ss1=list.get(j);
+                for(int k=0;k<ss1.obj.size();k++){
+                    //System.out.println("C5");
+                    ABObject o1=ss1.obj.get(k);
+                    //System.out.println(this.isconnected(o,o1));
+                    //System.out.println("e");
                     if(this.isconnected(o,o1)){
                         con.add(j);
                         break;
@@ -98,29 +65,108 @@ public class Structure {
                 }
             }
             if(con.size()==0){
-                SubStructure ss=new SubStructure();
-                ss.add(o);
-                list.add(ss);
+                SubStructure ss2=new SubStructure();
+                ss2.add(o);
+                list.add(ss2);
                 continue;
             }
-            SubStructure ss1=list.get(con.get(0));
-            ss1.add(o);
+            //SubStructure temp=list.get(con.get(0));
+            int tem=con.get(0);
+            list.get(tem).add(o);
             for(int j=1;j<con.size();j++){
-                SubStructure temp=list.get(con.get(j));
-                for(int k=0;k<temp.obj.size();k++){
-                    System.out.println("Ent");
-                    ss1.add(temp.obj.get(k));
-                    System.out.println("Exit");
+                SubStructure temp1=list.get(con.get(j));
+                for(int k=0;k<temp1.obj.size();k++){
+                    //System.out.println("C2");
+                    list.get(con.get(0)).add(temp1.obj.get(k));
                 }
             }
-            for(int j=0;j<con.size();j++){
-                list.remove(con.get(j));
+            for(int j=1;j<con.size();j++){
+                //System.out.println("C3");
+                int x=con.get(j);
+                //System.out.println("C55");
+                if(x>=list.size()){
+                    continue;
+                }
+                list.remove(x);
+                //System.out.println("C55e");
             }
-            System.out.println("Out");
-            list.add(ss1);
-            con.clear();
         }
-    }*/
+    }
+     /*public void createSubStructures(){
+         //error here!!!
+         System.out.println("Verify"+objects.size());
+         System.out.println("SS size"+list.size());
+         for(int i=0;i<objects.size();i++) {
+             ABObject o = objects.get(i);
+             for (int j = 0; j < list.size(); j++) {
+                 System.out.print(" ss" + j + ":" + list.get(j).obj.size());
+             }
+             System.out.println("\n");
+             if (i == 0) {
+                 SubStructure ss = new SubStructure();
+                 ss.add(o);
+                 list.add(ss);
+                 System.out.println("Inintitalized");
+                 continue;
+             }
+             ArrayList<Integer> con = new ArrayList<Integer>();
+             for (int j = 0; j < list.size(); j++) {
+                 SubStructure ss1 = list.get(j);
+                 for (int k = 0; k < ss1.obj.size(); k++) {
+                     ABObject o1 = ss1.obj.get(k);
+                     //System.out.println(this.isconnected(o,o1));
+                     //System.out.println("e");
+                     if (this.isconnected(o, o1)) {
+                         con.add(j);
+                         System.out.println("Object #" + i + "is connected to" + "#" + j);
+                         break;
+                     }
+                 }
+             }
+             if (con.size() == 0) {
+                 System.out.println("new SS Object added to New ss");
+                 SubStructure ss2 = new SubStructure();
+                 ss2.add(o);
+                 list.add(ss2);
+                 continue;
+             }
+             list.get(con.get(0)).add(o);
+             for (int j = 1; j < con.size(); j++) {
+                 SubStructure temp1 = list.get(con.get(j));
+                 for (int k = 0; k < temp1.obj.size(); k++) {
+                     //System.out.println("Object # Added to ss"+list.get(con.get(0)).add(o));
+                     System.out.println("E");
+                     list.get(con.get(0)).add(temp1.obj.get(k));
+                 }
+             }
+             for (int j = 1; j < con.size(); j++) {
+                 int x=con.get(j);
+                 list.remove(x);
+                 System.out.println("removed" + con.get(j));
+                 //ArrayList<SubStructure> ass=new ArrayList<SubStructure>();
+             }
+             /*SubStructure sss=new SubStructure();
+             sss.add(o);
+             for(int j=0;j<con.size();j++){
+                 for(int k=0;k<list.get(con.get(j)).obj.size();k++){
+                     sss.add(list.get(con.get(j)).obj.get(k));
+                 }
+             }
+             for(int j=0;j<con.size();j++){
+                 list.remove(con.get(j));
+             }
+             list.add(sss);
+         }
+         for(int i=0;i<list.size();i++){
+             SubStructure ss=list.get(i);
+             for(int j=0;j<ss.obj.size();j++){
+                 System.out.println(ss.obj.get(j));
+             }
+             System.out.println("ss #"+i+list.get(i).obj.size());
+             //System.out.println("\n\n\n");
+         }*/
+/*         }
+     }*/
     public  boolean isconnected(ABObject o, ABObject o1) {
         //Wrong Some where int this code*/
         //Structure sss=new Structure(new ArrayList<ABObject>());
@@ -168,7 +214,7 @@ public class Structure {
                 }
             }
         }*/
-        if (Math.abs(Pts2[lb].y - Pts1[lt].y) <= 15) {
+        if (Math.abs(Pts2[lb].y - Pts1[lt].y) <= 10) {
             /*ABObject temp = o;
             o = o1;
             o1 = temp;
@@ -183,7 +229,7 @@ public class Structure {
 
             //System.out.println("Swapped");
         }
-        if (Math.abs(Pts1[lb].y - Pts2[lt].y) <= 15) {
+        if (Math.abs(Pts1[lb].y - Pts2[lt].y) <= 10) {
             //System.out.println("May be connected");
             /*try {
                 Thread.sleep(15000);
@@ -203,7 +249,7 @@ public class Structure {
                 return true;
             }
         }
-        if (Math.abs(Pts2[rt].x - Pts1[lt].x) <= 15) {
+        if (Math.abs(Pts2[rt].x - Pts1[lt].x) <= 10) {
             /*ABObject temp = o;
             o = o1;
             o1 = temp;
@@ -218,7 +264,7 @@ public class Structure {
 
             //System.out.println("Swapped");
         }
-        if (Math.abs(Pts1[rb].x - Pts2[lt].x) <= 15) {
+        if (Math.abs(Pts1[rb].x - Pts2[lt].x) <= 10) {
             //System.out.println("May be connected");
             /*try {
                 Thread.sleep(15000);
@@ -296,7 +342,7 @@ public class Structure {
                 }
             }
         }*/
-        if (Math.abs(Pts2[lb].y - Pts1[lt].y) <= 15) {
+        if (Math.abs(Pts2[lb].y - Pts1[lt].y) <= 10) {
             /*ABObject temp = o;
             o = o1;
             o1 = temp;
@@ -311,7 +357,7 @@ public class Structure {
 
             //System.out.println("Swapped");
         }
-        if (Math.abs(Pts1[lb].y - Pts2[lt].y) <= 15) {
+        if (Math.abs(Pts1[lb].y - Pts2[lt].y) <= 10) {
             //System.out.println("May be connected");
             /*try {
                 Thread.sleep(15000);
@@ -331,7 +377,7 @@ public class Structure {
                 return true;
             }
         }
-        if (Math.abs(Pts2[rt].x - Pts1[lt].x) <= 15) {
+        if (Math.abs(Pts2[rt].x - Pts1[lt].x) <= 10) {
             /*ABObject temp = o;
             o = o1;
             o1 = temp;
@@ -346,7 +392,7 @@ public class Structure {
 
             //System.out.println("Swapped");
         }
-        if (Math.abs(Pts1[rb].x - Pts2[lt].x) <= 15) {
+        if (Math.abs(Pts1[rb].x - Pts2[lt].x) <= 10) {
             //System.out.println("May be connected");
             /*try {
                 Thread.sleep(15000);
